@@ -1,0 +1,53 @@
+{
+  "name": "Onchain Creator Hub",
+  "description": "A Base + Farthercast dApp for creators and hunters. Pay-per-action Frames, creator passes, escrowed bounties, and analytics.",
+  "icon": "favicon.ico",
+  "accounts": [
+    {
+      "name": "Platform Owner",
+      "address": "0x",
+      "chain": "base"
+    }
+  ],
+  "channels": [
+    {
+      "id": "home",
+      "name": "Home",
+      "url": "https://onchain-creator-hub.vercel.app/api/frame/home"
+    },
+    {
+      "id": "actions",
+      "name": "Actions",
+      "url": "https://onchain-creator-hub.vercel.app/api/frame/actions"
+    },
+    {
+      "id": "passes",
+      "name": "Passes",
+      "url": "https://onchain-creator-hub.vercel.app/api/frame/passes"
+    },
+    {
+      "id": "bounties",
+      "name": "Bounties",
+      "url": "https://onchain-creator-hub.vercel.app/api/frame/bounties"
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "url": "https://onchain-creator-hub.vercel.app/api/frame/analytics"
+    }
+  ],
+  "frames": {
+    "home": {
+      "version": "vNext",
+      "name": "Home Frame",
+      "imageUrl": "https://onchain-creator-hub.vercel.app/images/frame-home.png",
+      "postUrl": "https://onchain-creator-hub.vercel.app/api/frame/home",
+      "buttons": [
+        { "label": "Actions", "action": "post", "target": "/api/frame/actions" },
+        { "label": "Passes", "action": "post", "target": "/api/frame/passes" },
+        { "label": "Bounties", "action": "post", "target": "/api/frame/bounties" },
+        { "label": "Analytics", "action": "post", "target": "/api/frame/analytics" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run db:generate && npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "ADMIN_WALLET_ADDRESS": "@admin_wallet_address",
+    "SECRET_ENCRYPTION_KEY": "@secret_encryption_key",
+    "BASE_RPC_URL": "@base_rpc_url",
+    "NEYNAR_API_KEY": "@neynar_api_key",
+    "NEYNAR_SECRET_KEY": "@neynar_secret_key",
+    "OPENROUTER_API_KEY": "@openrouter_api_key",
+    "POSTHOG_API_KEY": "@posthog_api_key",
+    "NEXT_PUBLIC_NEYNAR_APP_ID": "@neynar_app_id",
+    "NEXT_PUBLIC_NEYNAR_APP_SECRET": "@neynar_app_secret"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    },
+    {
+      "source": "/.well-known/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/frame/:path*",
+      "destination": "/api/frame/:path*"
+    }
+  ]
+}

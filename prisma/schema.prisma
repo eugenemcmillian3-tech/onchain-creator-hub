@@ -1,0 +1,314 @@
+// Prisma Schema for Onchain Creator & Bounty Hub
+// PostgreSQL database with comprehensive data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER MANAGEMENT ====================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SubscriptionTier {
+  NONE
+  STARTER
+  PRO
+  POWER
+}
+
+model User {
+  id               String             @id @default(cuid())
+  walletAddress    String             @unique
+  fid              BigInt?            @unique // Farthercast ID
+  farcasterName    String?
+  farcasterPfp     String?
+  role             UserRole           @default(USER)
+  tier             SubscriptionTier   @default(NONE)
+  subscriptionEnd  DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  // Relations
+  subscriptions    Subscription?
+  bountiesPosted   Bounty[]           @relation("BountyPoster")
+  bountySubmissions Submission[]
+  accessPasses     UserAccessPass[]
+  actions          Action[]
+  analyticsEvents  AnalyticsEvent[]
+  auditLogs        AuditLog[]
+  
+  @@index([walletAddress])
+  @@index([fid])
+}
+
+model Nonce {
+  id        String   @id @default(cuid())
+  address   String   @unique
+  nonce     String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  
+  @@index([address])
+  @@index([expiresAt])
+}
+
+// ==================== SUBSCRIPTION MANAGEMENT ====================
+
+model Subscription {
+  id                String           @id @default(cuid())
+  userId            String           @unique
+  user              User             @relation(fields: [userId], references: [id])
+  tier              SubscriptionTier
+  startDate         DateTime
+  endDate           DateTime
+  monthlyVolumeUsed Float            @default(0)
+  lastVolumeReset   DateTime         @default(now())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+// ==================== BOUNTY SYSTEM ====================
+
+enum BountyStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+model Bounty {
+  id          String       @id @default(cuid())
+  posterId    String
+  poster      User         @relation("BountyPoster", fields: [posterId], references: [id])
+  title       String
+  description String
+  amount      Float        // In USD equivalent
+  token       String       // Token address
+  tokenSymbol String       // e.g., "USDC", "ETH"
+  metadataUri String?      // IPFS or storage URL
+  status      BountyStatus @default(OPEN)
+  txHash      String?      // Transaction hash for funding
+  deadline    DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  submissions Submission[]
+  
+  @@index([posterId])
+  @@index([status])
+  @@index([deadline])
+}
+
+model Submission {
+  id           String    @id @default(cuid())
+  bountyId     String
+  bounty       Bounty    @relation(fields: [bountyId], references: [id])
+  hunterId     String
+  hunter       User      @relation(fields: [hunterId], references: [id])
+  submissionUri String   // URL to submitted work
+  selected     Boolean   @default(false)
+  selectedAt   DateTime?
+  submittedAt  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([bountyId])
+  @@index([hunterId])
+}
+
+// ==================== ACCESS PASSES ====================
+
+enum PassStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+model PassCollection {
+  id              String    @id @default(cuid())
+  contractAddress String    @unique
+  creatorAddress  String
+  name            String
+  symbol          String
+  maxSupply       Int
+  primaryPrice    Float     // Price per pass
+  royaltyBps      Int       // Royalty percentage in basis points
+  isSoulbound     Boolean   @default(false)
+  metadataUri     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  passes          Pass[]
+  
+  @@index([contractAddress])
+  @@index([creatorAddress])
+}
+
+model Pass {
+  id           String     @id @default(cuid())
+  collectionId String
+  collection   PassCollection @relation(fields: [collectionId], references: [id])
+  tokenId      BigInt
+  holderAddress String
+  status       PassStatus @default(ACTIVE)
+  mintedAt     DateTime   @default(now())
+  metadataUri  String?
+  
+  // Relations
+  userAccessPasses UserAccessPass[]
+
+  @@unique([collectionId, tokenId])
+  @@index([holderAddress])
+  @@index([collectionId])
+}
+
+model UserAccessPass {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  passId    String
+  pass      Pass     @relation(fields: [passId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, passId])
+  @@index([userId])
+  @@index([passId])
+}
+
+// ==================== ACTIONS & TRANSACTIONS ====================
+
+enum ActionType {
+  TIP
+  PAYWALL_UNLOCK
+  NFT_MINT
+}
+
+model Action {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  type        ActionType
+  recipient   String     // Recipient wallet address
+  amount      Float      // Amount in USD
+  feeAmount   Float      // Platform fee
+  contextId   String?    // Associated cast or content ID
+  txHash      String?
+  isSubscriber Boolean   @default(false)
+  createdAt   DateTime   @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ==================== ANALYTICS ====================
+
+enum EventType {
+  BOUNTY_POSTED
+  BOUNTY_COMPLETED
+  PASS_MINTED
+  TIP_SENT
+  CONTENT_UNLOCKED
+  SUBSCRIPTION_CREATED
+  FEE_COLLECTED
+}
+
+model AnalyticsEvent {
+  id          String    @id @default(cuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  eventType   EventType
+  amount      Float?    // Associated amount
+  currency    String?   // Token symbol
+  metadata    Json?     // Additional event data
+  timestamp   DateTime  @default(now())
+
+  @@index([eventType])
+  @@index([timestamp])
+  @@index([userId])
+}
+
+// ==================== ADMIN & SYSTEM CONFIG ====================
+
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   // Always stored encrypted
+  iv          String   // Initialization vector for decryption
+  isSecret    Boolean  @default(false)
+  description String?
+  updatedBy   String?  // Wallet address
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@index([key])
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  enabled     Boolean  @default(true)
+  description String?
+  metadata    Json?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@index([key])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String
+  resource    String
+  resourceId  String?
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+}
+
+// ==================== FRAME CACHE ====================
+
+model FrameCache {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  data      Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([expiresAt])
+}
+
+// ==================== API RATE LIMITS ====================
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., "ip:192.168.1.1" or "user:0x123..."
+  count     Int      @default(0)
+  windowMs  BigInt
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([expiresAt])
+}
