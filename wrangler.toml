@@ -1,0 +1,31 @@
+name = "onchain-creator-hub"
+compatibility_date = "2025-01-01"
+compatibility_node = "18"
+
+# Pages project configuration
+pages_build_output_dir = ".vercel/output/static"
+
+# Worker configuration for next-on-pages
+[build]
+  command = "npm run pages:build"
+
+# Environment variables for Cloudflare deployment
+# IMPORTANT: Replace all placeholder values with your actual credentials
+
+# Hyperdrive for PostgreSQL connection pooling (recommended for production)
+# [hyperdrive]
+# binding = "HYPERDRIVE"
+# id = "your-hyperdrive-id"
+# database = "your-database-name"
+# user = "your-database-user"
+# password = "your-database-password"
+# scheme = "postgresql"
+
+# Secrets (use `wrangler secret put` for production)
+# [vars]
+# ADMIN_WALLET_ADDRESS = "0x..."
+# ENCRYPTION_KEY = "your-256-bit-encryption-key"
+
+# Custom domains
+# [[pages_custom_domain]]
+# domain_name = "yourdomain.com"

@@ -1,0 +1,31 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20.19.6"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Redirects for Next.js routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variable defaults (override in Netlify dashboard)
+[context.production.environment]
+  NEXT_PUBLIC_CHAIN_ID = "8453"
+  NEXT_PUBLIC_CHAIN_NAME = "Base"
+  NEXT_PUBLIC_RPC_URL = "https://mainnet.base.org"
+  NEXT_PUBLIC_USDC_TOKEN_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+  NEXT_PUBLIC_FARCASTER_FID = "1378286"
+  NEXT_PUBLIC_COLLECTOR_WALLET = "0xcc9569bF1d87B7a18BD3363413b823AaF06084d3"
+  ENABLE_MAINTENANCE_MODE = "false"
+  ENABLE_NEW_BOUNTIES = "true"
+  ENABLE_PASS_MINTING = "true"
