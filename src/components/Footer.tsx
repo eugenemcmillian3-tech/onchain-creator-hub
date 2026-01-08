@@ -47,7 +47,7 @@ export function Footer() {
               <span>Onchain Hub</span>
             </Link>
             <p className="text-text-muted text-sm mb-4">
-              The premier platform for creators and hunters on Base + Farthercast.
+              The premier platform for creators and hunters on Base + Farcaster.
             </p>
             <div className="flex gap-4">
               {socialLinks.map((social) => (
@@ -124,7 +124,7 @@ export function Footer() {
             © {new Date().getFullYear()} Onchain Creator Hub. All rights reserved.
           </p>
           <p className="text-text-muted text-sm">
-            Built on Base • Powered by Farthercast
+            Built on Base • Powered by Farcaster
           </p>
         </div>
       </div>
