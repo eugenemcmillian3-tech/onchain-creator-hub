@@ -312,3 +312,57 @@ model RateLimit {
   @@index([key])
   @@index([expiresAt])
 }
+
+// ==================== PAYMENT & TRANSACTION TRACKING ====================
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model TransactionLog {
+  id          String            @id @default(cuid())
+  userId      String?
+  amount      Float
+  currency    String            // "USDC", "USDC-SPL", etc.
+  fromWallet  String
+  toWallet    String            // Wallet A or Wallet B
+  chain       String            // Base, Ethereum, Solana, etc.
+  txHash      String?
+  platform    String            // "farcaster" or "base-app"
+  featureUsed String            // "lore" or "promo"
+  status      TransactionStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  confirmedAt DateTime?
+
+  @@index([userId])
+  @@index([platform])
+  @@index([featureUsed])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AdminWallet {
+  id             String   @id @default(cuid())
+  walletAddress  String   @unique
+  name           String   // "Wallet A" or "Wallet B"
+  fid            BigInt?
+  canAccessFree  Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@index([walletAddress])
+  @@index([fid])
+}
+
+model FeatureAccess {
+  id              String   @id @default(cuid())
+  walletAddress   String
+  platform        String   // "farcaster" or "base-app"
+  lastAccessedAt  DateTime @default(now())
+  totalUsageCost  Float    @default(0)
+
+  @@unique([walletAddress, platform])
+  @@index([walletAddress])
+  @@index([platform])
+}

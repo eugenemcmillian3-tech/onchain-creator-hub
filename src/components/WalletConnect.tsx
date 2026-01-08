@@ -3,8 +3,9 @@
 import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { useState, useEffect } from 'react'
-import { Loader2, Copy, Check, ExternalLink } from 'lucide-react'
+import { Loader2, Copy, Check, ExternalLink, Shield } from 'lucide-react'
 import { formatAddress } from '@/lib/utils'
+import { detectSource, getSourceWallet, isAdminWallet } from '@/lib/wallet-detector'
 
 export function WalletConnect() {
   const { isConnected, address, chainId } = useAccount()
@@ -13,8 +14,18 @@ export function WalletConnect() {
   const { data: balance } = useBalance({ address })
   const [copied, setCopied] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [source, setSource] = useState<'farcaster' | 'base-app' | 'direct'>('direct')
+  const [isAdmin, setIsAdmin] = useState(false)
 
-  // Auto-connect on mount if previously connected
+  useEffect(() => {
+    const detectedSource = detectSource()
+    setSource(detectedSource)
+    
+    if (address) {
+      setIsAdmin(isAdminWallet(address))
+    }
+  }, [address])
+
   useEffect(() => {
     const lastConnected = localStorage.getItem('lastConnectedWallet')
     if (lastConnected && !isConnected && connectors.length > 0) {
@@ -55,7 +66,20 @@ export function WalletConnect() {
 
   if (isConnected && address) {
     return (
-      <div className="relative">
+      <div className="relative flex items-center gap-2">
+        {isAdmin && (
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/20 border border-primary/40">
+            <Shield className="w-3 h-3 text-primary" />
+            <span className="text-xs font-medium text-primary">Admin</span>
+          </div>
+        )}
+        {source !== 'direct' && (
+          <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-base/20 border border-base/40">
+            <span className="text-xs font-medium text-base">
+              {source === 'farcaster' ? 'Farcaster' : 'Base App'}
+            </span>
+          </div>
+        )}
         <button
           onClick={() => setShowDropdown(!showDropdown)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface border border-border hover:border-primary transition-colors"

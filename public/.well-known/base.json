@@ -1,11 +1,11 @@
 {
   "accountAssociation": {
-    "header": "eyJmaWQiOjEzNzgyODYsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhjYzk1NjliRjFkODdCN2ExOEJEMzM2MzQxM2I4MjNBYUYwNjA4NGQzIn0",
-    "payload": "eyJkb21haW4iOiJ3YXJwY2FzdC5jb20ifQ",
+    "header": "eyJmaWQiOjE2NDQ5NDgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhFQThiQTQxQ2E3MDU1Rjg5NmRENEUwMDhCMTU5NmFiMmIwNjRFNzUyIn0",
+    "payload": "eyJkb21haW4iOiJiYXNlLm9yZyJ9",
     "signature": "MHg..."
   },
   "frame": {
-    "version": "next",
+    "version": "1",
     "name": "Onchain Creator Hub",
     "iconUrl": "${NEXT_PUBLIC_APP_URL}/icon.png",
     "homeUrl": "${NEXT_PUBLIC_APP_URL}",
@@ -16,11 +16,12 @@
     "webhookUrl": "${NEXT_PUBLIC_APP_URL}/api/frame/webhook"
   },
   "metadata": {
-    "fid": 1378286,
+    "fid": 1644948,
+    "developer": "urbanwarrior79",
     "displayName": "Onchain Creator Hub",
     "description": "Create, earn, and collaborate on Base chain. Pay-per-action Frames, creator passes, escrowed bounties, and AI-powered content.",
     "url": "${NEXT_PUBLIC_APP_URL}",
-    "chains": ["base", "ethereum", "arbitrum", "solana", "bsc", "monad", "hyperevm", "celo"],
+    "chains": ["base", "ethereum", "polygon", "avalanche", "fantom", "arbitrum", "optimism"],
     "features": ["lore-generation", "promo-pack", "bounties", "passes", "analytics"]
   },
   "actions": [
@@ -48,17 +49,6 @@
     },
     {
       "type": "post",
-      "name": "Home",
-      "icon": "home",
-      "description": "Return to home",
-      "aboutUrl": "${NEXT_PUBLIC_APP_URL}",
-      "action": {
-        "type": "post",
-        "url": "${NEXT_PUBLIC_APP_URL}/api/frame/home"
-      }
-    },
-    {
-      "type": "post",
       "name": "Bounties",
       "icon": "target",
       "description": "Browse and claim bounties",
@@ -66,17 +56,6 @@
       "action": {
         "type": "post",
         "url": "${NEXT_PUBLIC_APP_URL}/api/frame/bounties"
-      }
-    },
-    {
-      "type": "post",
-      "name": "Passes",
-      "icon": "ticket",
-      "description": "View and mint creator passes",
-      "aboutUrl": "${NEXT_PUBLIC_APP_URL}/passes",
-      "action": {
-        "type": "post",
-        "url": "${NEXT_PUBLIC_APP_URL}/api/frame/passes"
       }
     },
     {
