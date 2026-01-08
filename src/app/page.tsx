@@ -1,12 +1,34 @@
+'use client'
+
 import Link from 'next/link'
-import { ArrowRight, Shield, Zap, Coins, Users, BarChart3, Globe } from 'lucide-react'
+import { ArrowRight, Shield, Zap, Coins, Users, BarChart3, Globe, Sparkles, Megaphone } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { detectSource, getSourceWallet } from '@/lib/wallet-detector'
 
 export default function HomePage() {
+  const [source, setSource] = useState<'farcaster' | 'base-app' | 'direct'>('direct')
+  const [sourceWallet, setSourceWallet] = useState<any>(null)
+
+  useEffect(() => {
+    const detectedSource = detectSource()
+    setSource(detectedSource)
+    setSourceWallet(getSourceWallet(detectedSource))
+  }, [])
   const features = [
+    {
+      icon: Sparkles,
+      title: 'AI Lore Generation',
+      description: 'Generate compelling lore and stories for your projects with AI. $1.50 per generation, admin wallets free.',
+    },
+    {
+      icon: Megaphone,
+      title: 'AI Promo Packs',
+      description: 'Create professional promotional content with AI-powered marketing. $2.50 per pack, admin wallets free.',
+    },
     {
       icon: Coins,
       title: 'Pay-Per-Action Frames',
-      description: 'Tips, paywalls, and NFT mints with automatic fee splitting. Built on Farthercast Frames for seamless user experience.',
+      description: 'Tips, paywalls, and NFT mints with automatic fee splitting. Built on Farcaster Frames for seamless user experience.',
     },
     {
       icon: Shield,
@@ -87,15 +109,21 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-base/20 text-base text-sm font-medium mb-6">
             <Globe className="w-4 h-4" />
-            Built on Base + Farthercast
+            Built on Base + Farcaster
           </div>
+          {source !== 'direct' && sourceWallet && (
+            <div className="mb-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/40 text-primary text-sm font-medium">
+              <Shield className="w-4 h-4" />
+              Connected via {source === 'farcaster' ? 'Farcaster' : 'Base App'} • FID: {sourceWallet.fid}
+            </div>
+          )}
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Create, Earn, and Collaborate on{' '}
             <span className="gradient-text">Base Chain</span>
           </h1>
           <p className="text-xl text-text-muted mb-8 max-w-2xl mx-auto">
             The all-in-one platform for creators and hunters. Pay-per-action Frames, 
-            creator passes, escrowed bounties, and powerful analytics.
+            creator passes, escrowed bounties, AI-powered content, and powerful analytics.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/bounties" className="btn btn-primary text-lg px-8 py-3">
@@ -129,7 +157,7 @@ export default function HomePage() {
             A complete toolkit for creators and hunters on the Base ecosystem.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature) => (
             <div key={feature.title} className="card-hover">
               <div className="w-12 h-12 rounded-xl bg-base/20 flex items-center justify-center mb-4">
